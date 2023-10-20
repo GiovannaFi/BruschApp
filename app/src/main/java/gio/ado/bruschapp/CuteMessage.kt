@@ -1,4 +1,4 @@
-package gio.ado.bruschapp.presentation
+package gio.ado.bruschapp
 
 import android.graphics.Bitmap
 

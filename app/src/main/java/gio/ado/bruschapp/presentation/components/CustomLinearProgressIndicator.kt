@@ -1,4 +1,4 @@
-package gio.ado.bruschapp.presentation
+package gio.ado.bruschapp.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
