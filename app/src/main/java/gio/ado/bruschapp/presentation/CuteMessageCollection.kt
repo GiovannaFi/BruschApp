@@ -2,7 +2,6 @@ package gio.ado.bruschapp.presentation
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,14 +21,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import gio.ado.bruschapp.SharedImplementation
 import gio.ado.bruschapp.presentation.components.BottomNavigation
 import gio.ado.bruschapp.presentation.components.TopBarExtended
@@ -38,17 +34,16 @@ import gio.ado.bruschapp.viewmodels.ViewModel
 
 @Composable
 fun CuteMessageCollection(
-    navController: NavHostController
+    viewModelComune: ViewModel
 ) {
     val context = LocalContext.current
-    val viewModelComune = ViewModel(context)
     val sharedImplementation = remember {
         SharedImplementation(context)
     }
     LaunchedEffect(key1 = true) {
         viewModelComune.downloadAllImages(context)
     }
-    val bitmap = viewModelComune.allBitmapLiveData.observeAsState(null)
+    val bitmaps = viewModelComune.allBitmapLiveData.observeAsState(null)
 
     TopBarExtended(dimensionParam = 70, showProfile = true)
     Column(Modifier.padding(top = 75.dp)) {
@@ -56,9 +51,9 @@ fun CuteMessageCollection(
             columns = StaggeredGridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
+                .padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 50.dp)
         ) {
-            itemsIndexed(bitmap.value.orEmpty()) { _, image ->
+            itemsIndexed(bitmaps.value.orEmpty()) { _, image ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -79,7 +74,7 @@ fun CuteMessageCollection(
             }
         }
     }
-//    BottomNavigation(navController)
+    BottomNavigation(viewModelComune, isCuteMessageCollection = true)
 }
 
 

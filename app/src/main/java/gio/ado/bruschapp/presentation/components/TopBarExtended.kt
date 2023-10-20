@@ -2,11 +2,13 @@ package gio.ado.bruschapp.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import gio.ado.bruschapp.R
 import gio.ado.bruschapp.SharedImplementation
 import gio.ado.bruschapp.ui.theme.Grey
@@ -33,11 +36,10 @@ import gio.ado.bruschapp.ui.theme.PaleBrown
 fun TopBarExtended(
     modifier: Modifier = Modifier,
     dimensionParam: Int,
-    showProfile: Boolean? = false
+    showProfile: Boolean? = false,
 ) {
     val context = LocalContext.current
     val profile = SharedImplementation(context).getProfile()
-
 
     Box(
         modifier = modifier
@@ -67,7 +69,8 @@ fun TopBarExtended(
             if(showProfile == true) {
                 Image(
                     modifier = Modifier
-                        .size(34.dp),
+                        .size(36.dp)
+                        .offset (x = 10.dp),
                     painter = if (profile == "bruschetta") {
                         painterResource(id = R.drawable.bist)
                     } else {
@@ -76,15 +79,16 @@ fun TopBarExtended(
                     contentDescription = null
                 )
                 Text(
+                    modifier = Modifier.offset(x = 18.dp),
                     text = if (profile == "bruschetta") {
-                        "BISTECCA"
+                        "BISTECCA:"
                     } else {
-                        "BRUSCHETTA"
+                        "BRUSCHETTA:"
                     },
                     style = TextStyle(
                         color = Grey,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
+                        fontSize = 20.sp,
                         textAlign = TextAlign.Center
                     )
                 )

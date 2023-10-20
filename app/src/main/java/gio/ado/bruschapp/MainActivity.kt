@@ -16,8 +16,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BruschAppTheme {
-                val navController = rememberNavController() // Crea il NavHostController
-                AppNavigation(navController = navController) // Passa il controller a AppNavigation
+                val navController = rememberNavController()
+                AppNavigation(navController = navController)
             }
         }
     }

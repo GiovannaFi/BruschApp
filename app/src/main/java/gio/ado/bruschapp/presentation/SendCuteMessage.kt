@@ -66,10 +66,9 @@ import java.util.Objects
 
 @Composable
 fun SendCuteMessage(
-    navController: NavHostController
+    viewModelComune : ViewModel
 ) {
     val context = LocalContext.current
-    val viewModelComune = ViewModel(context)
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
 
     val pViewModel = viewModel<PermissionViewModel>()
@@ -195,14 +194,14 @@ fun SendCuteMessage(
             }
 
             Spacer(modifier = Modifier.width(10.dp))
-            Icon(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clickable { navController.navigate("imagesScreen") },
-                imageVector = Icons.Default.ArrowForward,
-                contentDescription = "Camera icon",
-                tint = PaleGreen
-            )
+//            Icon(
+//                modifier = Modifier
+//                    .size(50.dp)
+//                    .clickable { navController.navigate("imagesScreen") },
+//                imageVector = Icons.Default.ArrowForward,
+//                contentDescription = "Camera icon",
+//                tint = PaleGreen
+//            )
         }
 
 
@@ -216,11 +215,8 @@ fun SendCuteMessage(
 //        }) {
 //
 //        }
-
-
     }
-    BottomNavigation(navController)
-
+    BottomNavigation(viewModelComune, isSendCuteMessage = true)
 }
 
 fun Context.createImageFile(): File {

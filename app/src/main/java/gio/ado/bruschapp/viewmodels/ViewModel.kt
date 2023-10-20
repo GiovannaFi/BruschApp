@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import gio.ado.bruschapp.SharedImplementation
@@ -18,15 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-sealed class StatePhoto {
-    object Loading : StatePhoto()
-    object Success : StatePhoto()
-    object Error : StatePhoto()
-}
-
-class ViewModel(context: Context) : ViewModel() {
-
-    val saveScreen = MutableStateFlow("home")
+class ViewModel(context: Context, val navController: NavHostController? = null) : ViewModel() {
 
     private val _bitmapLiveData = MutableLiveData<Bitmap?>()
     val bitmapLiveData: LiveData<Bitmap?> = _bitmapLiveData
@@ -57,12 +50,16 @@ class ViewModel(context: Context) : ViewModel() {
 //        }
 //    }
 
+    fun navigate(destination: String) {
+        navController?.navigate(destination)
+    }
+
     fun downloadLastImage(context: Context) = CoroutineScope(Dispatchers.IO).launch {
-            val child = if(sharedImplementation.getProfile() == "bistecca"){
-                "bruschetta/"
-            } else {
-                "bistecca/"
-            }
+        val child = if (sharedImplementation.getProfile() == "bistecca") {
+            "bruschetta/"
+        } else {
+            "bistecca/"
+        }
         try {
             val maxDownloadSize = 10L * 1024 * 1024
             val imageRefs = StorageUtil.imageRef.child(child).listAll().await()
@@ -104,13 +101,17 @@ class ViewModel(context: Context) : ViewModel() {
                 images.add(bmp)
             }
 
-            if (images.isNotEmpty()) {
-                _allBitmapLiveData.postValue(images)
-            } else {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Nessuna immagine trovata", Toast.LENGTH_LONG).show()
+            withContext(Dispatchers.Main) {
+                if (images.isNotEmpty()) {
+                    _allBitmapLiveData.postValue(images)
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Nessuna immagine trovata", Toast.LENGTH_LONG)
+                            .show()
+                    }
                 }
             }
+
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
@@ -119,8 +120,8 @@ class ViewModel(context: Context) : ViewModel() {
     }
 
 
-    fun realtimeUpdates(context: Context){
-        val child = if(sharedImplementation.getProfile() == "bistecca"){
+    fun realtimeUpdates(context: Context) {
+        val child = if (sharedImplementation.getProfile() == "bistecca") {
             "bruschetta"
         } else {
             "bistecca"

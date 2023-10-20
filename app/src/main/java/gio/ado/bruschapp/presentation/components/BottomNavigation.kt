@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -23,12 +22,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import gio.ado.bruschapp.ui.theme.PaleGreen
+import gio.ado.bruschapp.ui.theme.PaleGreen2
+import gio.ado.bruschapp.viewmodels.ViewModel
 
 @Composable
 fun BottomNavigation(
-    navController: NavHostController
+    viewModelComune: ViewModel,
+    isSendCuteMessage: Boolean = false,
+    isImageScreen: Boolean = false,
+    isCuteMessageCollection: Boolean = false,
 ) {
     val screenHeightDp = LocalConfiguration.current.screenHeightDp
 
@@ -36,7 +39,7 @@ fun BottomNavigation(
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
-//            .offset(y = (screenHeightDp.dp - 50.dp))
+            .offset(y = (screenHeightDp.dp - 50.dp))
             .background(PaleGreen),
         contentAlignment = Alignment.Center
     ) {
@@ -46,28 +49,40 @@ fun BottomNavigation(
             Icon(
                 modifier = Modifier
                     .size(30.dp)
-                    .clickable { navController.navigate("homeScreen") },
-                imageVector = Icons.Default.PhotoCamera,
-                contentDescription = "null",
-                tint = Color.White
-            )
-            Spacer(modifier = Modifier.width(60.dp))
-            Icon(
-                modifier = Modifier
-                    .size(30.dp)
-                    .clickable { navController.navigate("imagesScreen") },
+                    .clickable { viewModelComune.navigate("imagesScreen") },
                 imageVector = Icons.Default.Favorite,
                 contentDescription = "null",
-                tint = Color.White
+                tint = if (isImageScreen) {
+                    Color.White
+                } else {
+                    PaleGreen2
+                }
             )
             Spacer(modifier = Modifier.width(60.dp))
             Icon(
                 modifier = Modifier
                     .size(30.dp)
-                    .clickable { navController.navigate("collection") },
+                    .clickable { viewModelComune.navigate("homeScreen") },
+                imageVector = Icons.Default.PhotoCamera,
+                contentDescription = "null",
+                tint = if (isSendCuteMessage) {
+                    Color.White
+                } else {
+                    PaleGreen2
+                }
+            )
+            Spacer(modifier = Modifier.width(60.dp))
+            Icon(
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable { viewModelComune.navigate("collection") },
                 imageVector = Icons.Default.Collections,
                 contentDescription = "null",
-                tint = Color.White
+                tint = if (isCuteMessageCollection) {
+                    Color.White
+                } else {
+                    PaleGreen2
+                }
             )
         }
 

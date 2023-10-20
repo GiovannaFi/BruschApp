@@ -31,10 +31,9 @@ import gio.ado.bruschapp.viewmodels.ViewModel
 
 @Composable
 fun ImageScreen(
-    navController: NavHostController
-) {
+    viewModelComune : ViewModel)
+{
     val context = LocalContext.current
-    val viewModelComune = ViewModel(context)
     val isLoading = remember { mutableStateOf(false) }
     val screenHeightDp = LocalConfiguration.current.screenHeightDp
     val bitmap = viewModelComune.bitmapLiveData.observeAsState(null)
@@ -44,7 +43,7 @@ fun ImageScreen(
         viewModelComune.downloadLastImage(context)
     }
 
-    TopBarExtended(dimensionParam = 55, showProfile = true)
+    TopBarExtended(dimensionParam = 70, showProfile = true)
 
     Column(
         modifier = Modifier
@@ -61,7 +60,6 @@ fun ImageScreen(
         }
     }
 
-
-//    BottomNavigation(navController)
+    BottomNavigation(viewModelComune, isImageScreen = true)
 
 }
