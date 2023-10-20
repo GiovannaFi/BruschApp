@@ -3,7 +3,11 @@ package gio.ado.bruschapp.viewmodels
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.ExifInterface
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
+import androidx.core.view.ViewCompat.getRotation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,10 +18,11 @@ import gio.ado.bruschapp.SharedImplementation
 import gio.ado.bruschapp.StorageUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.io.File
+
 
 class ViewModel(context: Context, val navController: NavHostController? = null) : ViewModel() {
 
@@ -69,6 +74,11 @@ class ViewModel(context: Context, val navController: NavHostController? = null) 
             if (lastImageRef != null) {
                 val bytes = lastImageRef.getBytes(maxDownloadSize).await()
                 val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+//                val matrix = Matrix()
+//                matrix.postRotate(-90f)
+//                val rotatedBitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, matrix, true)
+//                _bitmapLiveData.postValue(rotatedBitmap)
+
                 _bitmapLiveData.postValue(bmp)
 
             } else {

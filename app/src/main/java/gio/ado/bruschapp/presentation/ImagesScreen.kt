@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,9 +36,8 @@ fun ImageScreen(
 {
     val context = LocalContext.current
     val isLoading = remember { mutableStateOf(false) }
-    val screenHeightDp = LocalConfiguration.current.screenHeightDp
     val bitmap = viewModelComune.bitmapLiveData.observeAsState(null)
-
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp
 
     LaunchedEffect(key1 = true) {
         viewModelComune.downloadLastImage(context)
@@ -55,7 +55,8 @@ fun ImageScreen(
             Image(
                 bitmap = bitmap.value!!.asImageBitmap(),
                 contentDescription = null, // Inserisci una descrizione appropriata
-                modifier = Modifier.size(60.dp)
+                modifier = Modifier.size(screenWidthDp.dp)
+                    .padding(horizontal = 16.dp)
             )
         }
     }

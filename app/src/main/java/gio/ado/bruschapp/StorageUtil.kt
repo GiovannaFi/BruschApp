@@ -55,6 +55,7 @@ class StorageUtil {
                 ?.use { it.readBytes() }
 
             byteArray?.let {
+
                 val uploadTask = spaceRef.putBytes(byteArray)
                 uploadTask.addOnFailureListener {
                     Toast.makeText(

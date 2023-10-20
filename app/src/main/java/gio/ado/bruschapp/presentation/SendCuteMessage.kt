@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,10 +22,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,13 +40,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import gio.ado.bruschapp.R
 import gio.ado.bruschapp.StorageUtil
@@ -66,7 +59,7 @@ import java.util.Objects
 
 @Composable
 fun SendCuteMessage(
-    viewModelComune : ViewModel
+    viewModelComune: ViewModel
 ) {
     val context = LocalContext.current
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
@@ -111,7 +104,7 @@ fun SendCuteMessage(
         )
     }
 
-   TopBarExtended(dimensionParam = 240)
+    TopBarExtended(dimensionParam = 240)
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -130,7 +123,14 @@ fun SendCuteMessage(
 
         if (captureImageUri.path?.isNotEmpty() == true) {
             Image(
-                modifier = Modifier.padding(16.dp, 8.dp),
+                modifier = Modifier.padding(16.dp, 8.dp)
+                    .clickable {
+                        StorageUtil.uploadToStorage(
+                            captureImageUri,
+                            context,
+                            "image"
+                        )
+                    },
                 painter = rememberImagePainter(captureImageUri),
                 contentDescription = null
             )
@@ -152,14 +152,14 @@ fun SendCuteMessage(
             Icon(
                 modifier = Modifier
                     .size(50.dp)
-                    .clickable {  },
+                    .clickable { },
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Camera icon",
                 tint = PaleGreen
             )
             Spacer(modifier = Modifier.width(10.dp))
 
-            if(captureImageUri.path?.isNotEmpty() == true){
+            if (captureImageUri.path?.isNotEmpty() == true) {
                 Icon(
                     modifier = Modifier
                         .size(50.dp)
@@ -170,12 +170,18 @@ fun SendCuteMessage(
                             shape = CircleShape
                         )
                         .padding(8.dp)
-                        .clickable { StorageUtil.uploadToStorage(captureImageUri, context, "image") },
+                        .clickable {
+                            StorageUtil.uploadToStorage(
+                                captureImageUri,
+                                context,
+                                "image"
+                            )
+                        },
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = "Camera icon",
                     tint = PaleGreen
                 )
-            }else{
+            } else {
                 Icon(
                     modifier = Modifier
                         .size(50.dp)
@@ -203,18 +209,6 @@ fun SendCuteMessage(
 //                tint = PaleGreen
 //            )
         }
-
-
-//        Button(modifier = Modifier.background(Color.Red), onClick = {
-//            StorageUtil.uploadToStorage(captureImageUri, context, "image")
-//        }) {
-//
-//        }
-//        Button(modifier = Modifier.background(Color.Yellow), onClick = {
-////            navController.navigate("imagesScreen")
-//        }) {
-//
-//        }
     }
     BottomNavigation(viewModelComune, isSendCuteMessage = true)
 }
