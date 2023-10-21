@@ -3,11 +3,11 @@ package gio.ado.bruschapp.viewmodels
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.media.ExifInterface
-import android.net.Uri
-import android.util.Log
 import android.widget.Toast
-import androidx.core.view.ViewCompat.getRotation
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,8 +21,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.io.File
+import java.io.ByteArrayInputStream
 
+data class CuteMessageState(
+    val message: String? = null
+)
 
 class ViewModel(context: Context, val navController: NavHostController? = null) : ViewModel() {
 
@@ -32,6 +35,11 @@ class ViewModel(context: Context, val navController: NavHostController? = null) 
     private val _allBitmapLiveData = MutableLiveData<List<Bitmap>>() // Cambia il tipo di LiveData
     val allBitmapLiveData: LiveData<List<Bitmap>> = _allBitmapLiveData
 
+    private val _descriptionLiveData = MutableLiveData<String>() // Cambia il tipo di LiveData
+    val descriptionLiveData: LiveData<String> = _descriptionLiveData
+
+    private val _state = mutableStateOf(CuteMessageState())
+    val state: State<CuteMessageState> = _state
 
     private val sharedImplementation = SharedImplementation(context)
     private val collection = sharedImplementation.getProfile()
@@ -59,6 +67,18 @@ class ViewModel(context: Context, val navController: NavHostController? = null) 
         navController?.navigate(destination)
     }
 
+    fun setCuteMessage(message: String) {
+        _state.value = state.value.copy(
+            message = message
+        )
+    }
+
+    fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(angle)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+    }
+
     fun downloadLastImage(context: Context) = CoroutineScope(Dispatchers.IO).launch {
         val child = if (sharedImplementation.getProfile() == "bistecca") {
             "bruschetta/"
@@ -73,13 +93,32 @@ class ViewModel(context: Context, val navController: NavHostController? = null) 
 
             if (lastImageRef != null) {
                 val bytes = lastImageRef.getBytes(maxDownloadSize).await()
-                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-//                val matrix = Matrix()
-//                matrix.postRotate(-90f)
-//                val rotatedBitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, matrix, true)
-//                _bitmapLiveData.postValue(rotatedBitmap)
 
-                _bitmapLiveData.postValue(bmp)
+                // Leggi l'orientamento dell'immagine utilizzando ExifInterface
+                val exif = ExifInterface(ByteArrayInputStream(bytes))
+                val orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL
+                )
+
+                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+                // Ruota la bitmap in base all'orientamento
+                val rotatedBitmap = when (orientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bmp, 90f)
+                    ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bmp, 180f)
+                    ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bmp, 270f)
+                    else -> bmp
+                }
+
+                // Recupera i metadati dell'immagine
+                val metadata = lastImageRef.metadata.await()
+                val description = metadata.getCustomMetadata("description")
+
+                withContext(Dispatchers.Main) {
+                    _bitmapLiveData.postValue(rotatedBitmap)
+                    _descriptionLiveData.postValue(description) // Imposta la descrizione nel LiveData
+                }
 
             } else {
                 withContext(Dispatchers.Main) {
@@ -92,6 +131,7 @@ class ViewModel(context: Context, val navController: NavHostController? = null) 
             }
         }
     }
+
 
     fun downloadAllImages(context: Context) = CoroutineScope(Dispatchers.IO).launch {
         val child = if (sharedImplementation.getProfile() == "bistecca") {
@@ -107,8 +147,24 @@ class ViewModel(context: Context, val navController: NavHostController? = null) 
 
             for (imageRef in imageRefs.items) {
                 val bytes = imageRef.getBytes(maxDownloadSize).await()
+
+                // Leggi l'orientamento dell'immagine utilizzando ExifInterface
+                val exif = ExifInterface(ByteArrayInputStream(bytes))
+                val orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL
+                )
+
                 val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                images.add(bmp)
+
+                // Ruota la bitmap in base all'orientamento
+                val rotatedBitmap = when (orientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bmp, 90f)
+                    ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bmp, 180f)
+                    ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bmp, 270f)
+                    else -> bmp
+                }
+                images.add(rotatedBitmap)
             }
 
             withContext(Dispatchers.Main) {

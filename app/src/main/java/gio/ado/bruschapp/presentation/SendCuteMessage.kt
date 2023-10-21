@@ -48,6 +48,7 @@ import coil.compose.rememberImagePainter
 import gio.ado.bruschapp.R
 import gio.ado.bruschapp.StorageUtil
 import gio.ado.bruschapp.presentation.components.BottomNavigation
+import gio.ado.bruschapp.presentation.components.EditableTextBox
 import gio.ado.bruschapp.presentation.components.TopBarExtended
 import gio.ado.bruschapp.ui.theme.Grey
 import gio.ado.bruschapp.ui.theme.PaleGreen
@@ -63,6 +64,8 @@ fun SendCuteMessage(
 ) {
     val context = LocalContext.current
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
+    val state = viewModelComune.state.value
+
 
     val pViewModel = viewModel<PermissionViewModel>()
     val file = context.createImageFile()
@@ -123,12 +126,14 @@ fun SendCuteMessage(
 
         if (captureImageUri.path?.isNotEmpty() == true) {
             Image(
-                modifier = Modifier.padding(16.dp, 8.dp)
+                modifier = Modifier
+                    .padding(16.dp, 8.dp)
                     .clickable {
                         StorageUtil.uploadToStorage(
                             captureImageUri,
                             context,
-                            "image"
+                            "image",
+                            description = state.message.orEmpty()
                         )
                     },
                 painter = rememberImagePainter(captureImageUri),
@@ -147,6 +152,7 @@ fun SendCuteMessage(
                 contentDescription = "Camera icon"
             )
         }
+        EditableTextBox(viewModelComune)
         Spacer(modifier = Modifier.height(40.dp))
         Row() {
             Icon(
@@ -174,7 +180,8 @@ fun SendCuteMessage(
                             StorageUtil.uploadToStorage(
                                 captureImageUri,
                                 context,
-                                "image"
+                                "image",
+                                description = state.message.orEmpty()
                             )
                         },
                     imageVector = Icons.Default.CheckCircle,

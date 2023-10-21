@@ -1,38 +1,25 @@
 package gio.ado.bruschapp
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
 class StorageUtil {
-
-
     companion object {
         private val storage = FirebaseStorage.getInstance()
         val imageRef = Firebase.storage.reference
 
-
-        fun uploadToStorage(uri: Uri, context: Context, type: String) {
+        fun uploadToStorage(uri: Uri, context: Context, type: String, description: String) {
             val sharedImplementation = SharedImplementation(context)
             val storage = Firebase.storage
-            val child = if(sharedImplementation.getProfile() == "bistecca"){
+            val child = if (sharedImplementation.getProfile() == "bistecca") {
                 "bistecca/"
             } else {
                 "bruschetta/"
@@ -55,29 +42,28 @@ class StorageUtil {
                 ?.use { it.readBytes() }
 
             byteArray?.let {
+                // Creare metadati personalizzati
+                val metadata = StorageMetadata.Builder()
+                    .setCustomMetadata("description", description)
+                    .build()
 
-                val uploadTask = spaceRef.putBytes(byteArray)
+                // Caricare l'immagine con metadati personalizzati
+                val uploadTask = spaceRef.putBytes(byteArray, metadata)
+
                 uploadTask.addOnFailureListener {
-                    Toast.makeText(
-                        context,
-                        "upload failed",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    // Handle unsuccessful uploads
+                    Toast.makeText(context, "Caricamento fallito", Toast.LENGTH_SHORT).show()
+                    // Gestire i caricamenti non riusciti
                 }.addOnSuccessListener { taskSnapshot ->
                     // Immagine caricata con successo
                     val downloadUrl = taskSnapshot.storage.downloadUrl
                     // Ora puoi salvare `downloadUrl` nel Firestore Database
                     saveImageUrlToFirestore(downloadUrl.toString(), context)
                     Toast.makeText(context, "Caricamento riuscito", Toast.LENGTH_SHORT).show()
-                    Toast.makeText(
-                        context,
-                        "upload successed",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(context, "Caricamento riuscito", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+
 
         private fun saveImageUrlToFirestore(imageUrl: String, context: Context) {
             val firestore = Firebase.firestore
@@ -93,7 +79,8 @@ class StorageUtil {
                 .addOnSuccessListener {
                     Log.e("DAJE", "APPO")
                 }
-                .addOnFailureListener { e -> Log.e("NON DAJE", "NON APPO")
+                .addOnFailureListener { e ->
+                    Log.e("NON DAJE", "NON APPO")
                 }
         }
 
